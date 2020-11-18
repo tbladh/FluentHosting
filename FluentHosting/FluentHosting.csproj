@@ -10,6 +10,10 @@
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
+    <PackageProjectUrl>https://github.com/tbladh/FluentHosting</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/tbladh/FluentHosting</RepositoryUrl>
+    <RepositoryType>GitHub</RepositoryType>
+    <Authors>Thomas Bladh</Authors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,12 +22,12 @@
 
   <ItemGroup>
     <None Include="..\license.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
+	    <Pack>True</Pack>
+	    <PackagePath />
     </None>
     <None Include="..\readme.md">
 	    <Pack>True</Pack>
-		<PackagePath></PackagePath>
+		<PackagePath />
     </None>
   </ItemGroup>
 
