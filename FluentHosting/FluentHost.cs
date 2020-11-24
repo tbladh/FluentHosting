@@ -33,14 +33,14 @@ namespace FluentHosting
 
 		public void Stop()
 		{
-			_listener.Stop();
-		}
+            _listener.Stop();
+        }
 
 		private void GetContextCallback(IAsyncResult result)
 		{
-			var context = _listener.EndGetContext(result);
-
-			var route = context.Request.Url.LocalPath;
+			if (!_listener.IsListening) return;
+            var context = _listener.EndGetContext(result);
+            var route = context.Request.Url.LocalPath;
 			var verb = context.Request.HttpMethod.ToVerb();
 
 			// Find matching handler for route and verb.
@@ -65,7 +65,7 @@ namespace FluentHosting
 			{
 				Handle(handler, context);
 			}
-			_listener.BeginGetContext(new AsyncCallback(GetContextCallback), null);
+			_listener.BeginGetContext(GetContextCallback, null);
 		}
         private static void Handle(IRouteHandler handler, HttpListenerContext context)
 		{

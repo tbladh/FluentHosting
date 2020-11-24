@@ -21,9 +21,11 @@ namespace FluentHosting.Tests
 
             var client = new WebClient();
             var data = client.DownloadString(BaseUrl);
+            Assert.Equal("Hello World!", data);
+            Thread.Sleep(500);
+            data = client.DownloadString(BaseUrl);
+            Assert.Equal("Hello World!", data);
 
-            Assert.Equal(data, "Hello World!");
-            Thread.Sleep(1000);
             host.Stop();
         }
 
