@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net461;net5.0</TargetFrameworks>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <Description>A trivially simple and fluently composable web server for those times when you quickly need to get a no-frills server up and running. Ideal for development and testing.</Description>
     <Copyright>Copyright © Thomas Bladh 2020</Copyright>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>license.md</PackageLicenseFile>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
     <PackageProjectUrl>https://github.com/tbladh/FluentHosting</PackageProjectUrl>
     <RepositoryUrl>https://github.com/tbladh/FluentHosting</RepositoryUrl>
     <RepositoryType>GitHub</RepositoryType>
