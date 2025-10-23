@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace FluentHosting
+namespace FluentHosting.Contracts
 {
 	public interface IRouteHandler
     {

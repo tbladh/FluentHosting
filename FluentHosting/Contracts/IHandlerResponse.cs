@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace FluentHosting
+namespace FluentHosting.Contracts
 {
     public interface IHandlerResponse
     {

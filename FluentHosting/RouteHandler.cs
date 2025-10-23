@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentHosting.Contracts;
+using System;
 using System.Net;
 
 namespace FluentHosting

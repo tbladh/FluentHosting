@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using FluentHosting.Contracts;
+using System.IO;
 using System.Text;
 
 namespace FluentHosting
