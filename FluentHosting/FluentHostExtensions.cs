@@ -26,33 +26,58 @@ namespace FluentHosting
 
         public static FluentHost Handles(this FluentHost host, string route, Verb verb, Func<HttpListenerContext, IHandlerResponse> handler, CorsConfig corsConfig = null)
         {
-            host.Handlers.Add(new RouteHandler(route, verb, handler, corsConfig));
+            host.AddHandler(new RouteHandler(route, verb, handler, corsConfig));
 
             if (corsConfig == null) return host;
 
             // TODO: Tidy this up.
-            var preflightHandler = new RouteHandler(route, 
-                Verb.Options, 
+            var preflightHandler = new RouteHandler(route,
+                Verb.Options,
                 context =>
                 {
-                    var origin = context.Request.Headers["Origin"].ToLowerInvariant();
-                    var allow = corsConfig.Origins.Any(p => p.ToLowerInvariant() == origin) || corsConfig.Origins.Any(p => p == "*");
+                    var originHeader = context.Request.Headers["Origin"];
+                    if (string.IsNullOrWhiteSpace(originHeader))
+                    {
+                        return new HandlerResponse
+                        {
+                            Code = 400,
+                            ContentLength = 0,
+                            ContentType = "text/plain",
+                            Encoding = Encoding.UTF8,
+                            Stream = new MemoryStream(Array.Empty<byte>())
+                        };
+                    }
+
+                    var allow = corsConfig.Origins.Any(p => string.Equals(p, "*", StringComparison.InvariantCultureIgnoreCase)) ||
+                                corsConfig.Origins.Any(p => string.Equals(p, originHeader, StringComparison.InvariantCultureIgnoreCase));
+
                     return new HandlerResponse
                     {
                         Code = allow ? 200 : 400,
                         ContentLength = 0,
-                        ContentType = "text/plain", Encoding = Encoding.UTF8,
-                        Stream = new MemoryStream(new byte[] { })
+                        ContentType = "text/plain",
+                        Encoding = Encoding.UTF8,
+                        Stream = new MemoryStream(Array.Empty<byte>())
                     };
                 }, corsConfig);
-            host.Handlers.Add(preflightHandler);
+            host.AddHandler(preflightHandler);
 
             return host;
         }
 
         public static FluentHost AddHandler(this FluentHost host, IRouteHandler handler)
         {
-            host.Handlers.Add(handler);
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+
+            if (string.Equals(handler.Route, "*", StringComparison.InvariantCultureIgnoreCase))
+            {
+                host.Handlers.Add(handler);
+            }
+            else
+            {
+                host.Handlers.Insert(0, handler);
+            }
+
             return host;
         }
 

@@ -25,13 +25,17 @@ namespace FluentHosting
 
         public IEnumerable<string> ToHeaders(string requestedOrigin)
         {
-            var origin = Origins.FirstOrDefault(p => p == "*") ?? 
-                         (Origins.FirstOrDefault(p => string.Equals(p, requestedOrigin, StringComparison.InvariantCultureIgnoreCase)) ?? 
-                          Origins.FirstOrDefault());
-            if (origin == "*") origin = requestedOrigin;
-            if (origin != null)
+            if (!string.IsNullOrWhiteSpace(requestedOrigin))
             {
-                yield return $"Access-Control-Allow-Origin: {origin}";
+                var wildcard = Origins.FirstOrDefault(p => string.Equals(p, "*", StringComparison.InvariantCultureIgnoreCase));
+                var matchedOrigin = wildcard != null
+                    ? requestedOrigin
+                    : Origins.FirstOrDefault(p => string.Equals(p, requestedOrigin, StringComparison.InvariantCultureIgnoreCase));
+
+                if (!string.IsNullOrWhiteSpace(matchedOrigin))
+                {
+                    yield return $"Access-Control-Allow-Origin: {matchedOrigin}";
+                }
             }
             yield return $"Access-Control-Allow-Methods: {Methods.GetFlagsString()}";
             var headers = string.Join(", ", Headers);

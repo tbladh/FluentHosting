@@ -9,10 +9,10 @@
 - `IRouteHandler` (`FluentHosting/IRouteHandler.cs`) / `Verb` (`FluentHosting/Verb.cs`): contract and bit flag enum covering `GET`, `PUT`, `POST`, `DELETE`, and `OPTIONS`. `Verb.All` combines every literal verb.
 
 ## Routing Behaviour
-- Matching is performed in `FluentHost.GetContextCallback`. Routes are checked in registration order.
+- Matching is performed in `FluentHost.GetContextCallback`. Non-fallback handlers are evaluated in LIFO order so the most recently registered handler wins for a route, while `"*"` fallback handlers are always evaluated last.
 - `IsRouteMatch` allows either an exact, case-insensitive match or a prefix match when the handler route ends with `*` (currently the only wildcard form).
 - If no route matches, a handler with route `"*"` is treated as the fallback for the verb. Otherwise the host returns a bare `404`.
-- `FluentHostExtensions.Handles` (`FluentHosting/FluentHostExtensions.cs`) registers handlers and, when a `CorsConfig` is supplied, automatically adds an `OPTIONS` preflight handler for the same route.
+- `FluentHostExtensions.Handles` (`FluentHosting/FluentHostExtensions.cs`) delegates to `AddHandler`, preserving the fallback ordering and, when a `CorsConfig` is supplied, automatically adds an `OPTIONS` preflight handler for the same route.
 
 ## Response Helpers
 - `HandlerResponse` (`FluentHosting/HandlerResponse.cs`) implements `IHandlerResponse` with mutable properties consumed when writing to the `HttpListenerResponse`.
@@ -22,6 +22,7 @@
 ## CORS Support
 - `CorsConfig` (`FluentHosting/CorsConfig.cs`) stores allowed origins, verbs, headers, and max age. `CorsConfig.AllowAll` is a convenience instance using `Verb.All` and wildcard origins/headers.
 - When a request carries an `Origin` header and the matched handler has a `CorsConfig`, `FluentHost` writes the headers returned from `CorsConfig.ToHeaders`. Preflight requests share the same config via the auto-generated handler.
+- Origins that do not match the configured list (and requests missing an `Origin` header) receive a `400` from the preflight handler and no `Access-Control-Allow-Origin` header is emitted.
 
 ## Utility Extensions
 - `PathToContentType` converts common extensions to MIME types; it is unused in the current codebase but available for consumers.
