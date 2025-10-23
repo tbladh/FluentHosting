@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461;net5.0</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
     <Version>1.0.1</Version>
     <Description>A trivially simple and fluently composable web server for those times when you quickly need to get a no-frills server up and running. Ideal for development and testing.</Description>
-    <Copyright>Copyright © Thomas Bladh 2020</Copyright>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Copyright>Copyright 2020 Thomas Bladh</Copyright>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <PackageLicenseFile>license.md</PackageLicenseFile>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
     <AssemblyVersion>1.0.1.0</AssemblyVersion>
@@ -17,18 +17,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\license.md">
-	    <Pack>True</Pack>
-	    <PackagePath />
-    </None>
-    <None Include="..\readme.md">
-	    <Pack>True</Pack>
-		<PackagePath />
-    </None>
   </ItemGroup>
 
 </Project>

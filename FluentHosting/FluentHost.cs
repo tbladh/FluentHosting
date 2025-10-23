@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -44,7 +44,7 @@ namespace FluentHosting
 			var verb = context.Request.HttpMethod.ToVerb();
 
 			// Find matching handler for route and verb.
-			var handler = Handlers.FirstOrDefault(p => p.Route.ToLowerInvariant() == route.ToLowerInvariant() && (p.Verb & verb) != 0);
+			var handler = Handlers.FirstOrDefault(p => IsRouteMatch(p.Route, route) && (p.Verb & verb) != 0);
 
 			if (handler == null)
 			{
@@ -67,6 +67,27 @@ namespace FluentHosting
 			}
 			_listener.BeginGetContext(GetContextCallback, null);
 		}
+
+        // Helper method to match routes including wildcard support
+        private bool IsRouteMatch(string routePattern, string requestPath)
+        {
+            // Simple case - direct match
+            if (string.Equals(routePattern, requestPath, StringComparison.InvariantCultureIgnoreCase))
+                return true;
+            
+            // Wildcard handling
+            if (routePattern.EndsWith("*"))
+            {
+                // Get the base part of the pattern (everything before the *)
+                var basePath = routePattern.Substring(0, routePattern.Length - 1);
+            
+                // Check if the request path starts with the base path
+                return requestPath.StartsWith(basePath, StringComparison.InvariantCultureIgnoreCase);
+            }
+        
+            return false;
+        }
+
         private static void Handle(IRouteHandler handler, HttpListenerContext context)
 		{
             var headers = context.Request.Headers;
