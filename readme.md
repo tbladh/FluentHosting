@@ -20,6 +20,7 @@ host.Stop();
 
 ## Features
 - Fluent handler registration over `HttpListener` with last-write-wins semantics
+- Synchronous (`Start`/`Stop`) and asynchronous (`StartAsync`/`StopAsync`) lifecycle helpers for graceful startup and teardown
 - Built-in response helpers: `StringResponse` and `JsonResponse<T>`
 - Optional per-route `CorsConfig` that also provisions `OPTIONS` preflight handling
 - Simple wildcard support: routes ending with `*` match any suffix
@@ -28,7 +29,7 @@ host.Stop();
 ## Limitations to Know
 - No route templates or parameter binding (only literal paths and suffix `*`)
 - Static file serving is not included
-- Listener lifecycle is manual; call `Stop()` when finished
+- Transport security, request limits, and observability still rely on the host application (use a reverse proxy or wrap the listener yourself)
 
 ## Documentation
 - Repository overview: `Agents.md`

@@ -154,6 +154,67 @@ namespace FluentHosting.IntegrationTests
                 });
         }
 
+        [Fact]
+        public async Task Start_async_stop_async_cycle_restarts_listener_on_same_port()
+        {
+            var port = GetAvailablePort();
+            await using var host = new FluentHost(HostName, port)
+                .Handles("/", Verb.Get, _ => new StringResponse("cycle"));
+
+            await host.StartAsync();
+            await AssertResponseAsync(port, "cycle");
+
+            await host.StopAsync();
+
+            await host.StartAsync();
+            await AssertResponseAsync(port, "cycle");
+
+            await host.StopAsync();
+        }
+
+        [Fact]
+        public async Task Starting_host_twice_without_stopping_throws_invalid_operation()
+        {
+            var port = GetAvailablePort();
+            await using var host = new FluentHost(HostName, port)
+                .Handles("/", Verb.Get, _ => new StringResponse("cycle"));
+
+            await host.StartAsync();
+            await Assert.ThrowsAsync<InvalidOperationException>(() => host.StartAsync());
+            await host.StopAsync();
+        }
+
+        [Fact]
+        public async Task Stop_async_is_idempotent()
+        {
+            var port = GetAvailablePort();
+            await using var host = new FluentHost(HostName, port)
+                .Handles("/", Verb.Get, _ => new StringResponse("cycle"));
+
+            await host.StartAsync();
+            await host.StopAsync();
+            await host.StopAsync();
+        }
+
+        [Fact]
+        public async Task Handler_exception_returns_internal_server_error_and_keeps_listening()
+        {
+            await RunHostTestAsync(
+                host => host
+                    .Handles("/healthy", Verb.Get, _ => new StringResponse("ok"))
+                    .Handles("/boom", Verb.Get, _ => throw new InvalidOperationException("boom")),
+                async client =>
+                {
+                    var failing = await client.GetAsync("boom");
+                    Assert.Equal(HttpStatusCode.InternalServerError, failing.StatusCode);
+                    var payload = await failing.Content.ReadAsByteArrayAsync();
+                    Assert.Empty(payload);
+
+                    var healthy = await client.GetStringAsync("healthy");
+                    Assert.Equal("ok", healthy);
+                });
+        }
+
         private static async Task RunHostTestAsync(
             Func<FluentHost, FluentHost> configureHost,
             Func<HttpClient, Task> testBody)
@@ -186,6 +247,21 @@ namespace FluentHosting.IntegrationTests
             {
                 listener.Stop();
             }
+        }
+
+        private static async Task AssertResponseAsync(int port, string expectedBody)
+        {
+            using var client = CreateClient(port);
+            var body = await client.GetStringAsync(string.Empty);
+            Assert.Equal(expectedBody, body);
+        }
+
+        private static HttpClient CreateClient(int port)
+        {
+            var baseAddress = new Uri($"{HostName}:{port}/");
+            var client = new HttpClient { BaseAddress = baseAddress };
+            client.DefaultRequestHeaders.ConnectionClose = true;
+            return client;
         }
 
         private sealed record WidgetDto(string Id, string Name);

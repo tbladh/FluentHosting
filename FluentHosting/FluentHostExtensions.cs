@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace FluentHosting
@@ -70,15 +69,8 @@ namespace FluentHosting
         {
             if (handler == null) throw new ArgumentNullException(nameof(handler));
 
-            if (string.Equals(handler.Route, "*", StringComparison.InvariantCultureIgnoreCase))
-            {
-                host.Handlers.Add(handler);
-            }
-            else
-            {
-                host.Handlers.Insert(0, handler);
-            }
-
+            var isFallback = string.Equals(handler.Route, "*", StringComparison.InvariantCultureIgnoreCase);
+            host.RegisterHandler(handler, isFallback);
             return host;
         }
 
