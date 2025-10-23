@@ -1,12 +1,9 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
-using System.Security.Policy;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace FluentHosting.Tests
+namespace FluentHosting.IntegrationTests
 {
     public class BasicTests
     {
@@ -16,20 +13,27 @@ namespace FluentHosting.Tests
         public string BaseUrl => $"{ApiUrl}:{ApiPort}/";
 
         [Fact]
-        public void ComposingAnApi_With_OneHandler_ReturningHelloWorld_ShouldReturn_HelloWorld()
+        public async Task ComposingAnApi_With_OneHandler_ReturningHelloWorld_ShouldReturn_HelloWorld()
         {
             var host = new FluentHost(ApiUrl, ApiPort)
                 .Handles("/", Verb.Get, context => new StringResponse("Hello World!"))
                 .Start();
 
-            var client = new WebClient();
-            var data = client.DownloadString(BaseUrl);
-            Assert.Equal("Hello World!", data);
-            Thread.Sleep(500);
-            data = client.DownloadString(BaseUrl);
-            Assert.Equal("Hello World!", data);
+            try
+            {
+                using var client = new HttpClient();
+                var data = await client.GetStringAsync(BaseUrl);
+                Assert.Equal("Hello World!", data);
 
-            host.Stop();
+                await Task.Delay(500);
+
+                data = await client.GetStringAsync(BaseUrl);
+                Assert.Equal("Hello World!", data);
+            }
+            finally
+            {
+                host.Stop();
+            }
         }
 
         [Fact]
